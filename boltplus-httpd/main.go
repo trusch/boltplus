@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"log"
 	"net/http"
 	"strings"
@@ -9,10 +10,14 @@ import (
 	"github.com/trusch/boltplus"
 )
 
+var addr = flag.String("addr", ":8080", "address to bind to")
+var dbPath = flag.String("db", "default.db", "db to use")
+
 var db *boltplus.DB
 
 func init() {
-	d, err := boltplus.New("default.db")
+	flag.Parse()
+	d, err := boltplus.New(*dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -220,5 +225,5 @@ func handleFindPrefix(bucket, prefix, filter string, w http.ResponseWriter) {
 
 func main() {
 	http.HandleFunc("/", defaultHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(*addr, nil))
 }

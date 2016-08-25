@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/trusch/boltplus"
 )
@@ -165,7 +166,11 @@ func filterCmd(db *boltplus.DB) {
 }
 
 func backupCmd(db *boltplus.DB) {
-	if err := db.Backup(*backup); err != nil {
+	f, err := os.Create(*backup)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := db.Backup(f); err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("successfully created backup %v", *backup)

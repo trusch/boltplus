@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/trusch/boltplus"
@@ -44,7 +45,6 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	parts := strings.Split(strings.Trim(req.URL.Path, "/"), "/")
 	query := req.URL.Query()
-	log.Print(parts)
 	switch parts[0] {
 	case "all":
 		{
@@ -69,6 +69,10 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	case "findRange":
 		{
 			handleFindRange(query.Get("bucket"), query.Get("start"), query.Get("end"), query.Get("filter"), w)
+		}
+	case "backup":
+		{
+			handleBackup(w)
 		}
 	default:
 		{
@@ -132,13 +136,10 @@ func handlePrefix(bucket, prefix string, w http.ResponseWriter) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	log.Print("got channel")
 	res := make([]*boltplus.Pair, 0, 64)
 	for pair := range ch {
-		log.Print(pair)
 		res = append(res, pair)
 	}
-	log.Print("ready")
 	bs, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(bs)
@@ -160,7 +161,6 @@ func handleRange(bucket, start, end string, w http.ResponseWriter) {
 }
 
 func handleAll(bucket string, w http.ResponseWriter) {
-	log.Print("bucket: ", []byte(bucket))
 	ch, err := db.GetAll(bucket)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -176,7 +176,6 @@ func handleAll(bucket string, w http.ResponseWriter) {
 }
 
 func handleFind(bucket, filter string, w http.ResponseWriter) {
-	log.Print("bucket: ", []byte(bucket))
 	ch, err := db.Find(bucket, filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -192,7 +191,6 @@ func handleFind(bucket, filter string, w http.ResponseWriter) {
 }
 
 func handleFindRange(bucket, start, end, filter string, w http.ResponseWriter) {
-	log.Print("bucket: ", []byte(bucket))
 	ch, err := db.FindRange(bucket, start, end, filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -208,7 +206,6 @@ func handleFindRange(bucket, start, end, filter string, w http.ResponseWriter) {
 }
 
 func handleFindPrefix(bucket, prefix, filter string, w http.ResponseWriter) {
-	log.Print("bucket: ", []byte(bucket))
 	ch, err := db.FindPrefix(bucket, prefix, filter)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -221,6 +218,18 @@ func handleFindPrefix(bucket, prefix, filter string, w http.ResponseWriter) {
 	bs, _ := json.Marshal(res)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(bs)
+}
+
+func handleBackup(w http.ResponseWriter) {
+	size, err := db.Size()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", `attachment; filename="backup.db"`)
+	w.Header().Set("Content-Length", strconv.Itoa(int(size)))
+	db.Backup(w)
 }
 
 func main() {

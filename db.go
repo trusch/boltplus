@@ -1,6 +1,10 @@
 package boltplus
 
-import "github.com/boltdb/bolt"
+import (
+	"io"
+
+	"github.com/boltdb/bolt"
+)
 
 // DB wraps the boltdb handle
 type DB struct {
@@ -126,13 +130,23 @@ func (db *DB) FindRange(bucketPath, start, end, filterExpression string) (chan *
 }
 
 // Backup performs a hot backup of the whole database
-func (db *DB) Backup(targetFile string) error {
+func (db *DB) Backup(target io.Writer) error {
 	tx, err := db.Tx(false)
 	if err != nil {
 		return err
 	}
 	defer tx.Close()
-	return tx.Backup(targetFile)
+	return tx.Backup(target)
+}
+
+// Size return the size of the db in Bytes
+func (db *DB) Size() (int64, error) {
+	tx, err := db.Tx(false)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Close()
+	return tx.tx.Size(), nil
 }
 
 // Buckets returns a list of all buckets and subbuckets

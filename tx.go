@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/boltdb/bolt"
@@ -203,13 +203,8 @@ func (tx *Transaction) FindRange(bucketPath, start, end, filterExpression string
 }
 
 // Backup performs a hot backup of the whole database
-func (tx *Transaction) Backup(file string) error {
-	f, err := os.Create(file)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	_, err = tx.tx.WriteTo(f)
+func (tx *Transaction) Backup(target io.Writer) error {
+	_, err := tx.tx.WriteTo(target)
 	return err
 }
 

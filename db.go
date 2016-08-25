@@ -125,6 +125,26 @@ func (db *DB) FindRange(bucketPath, start, end, filterExpression string) (chan *
 	return tx.FindRange(bucketPath, start, end, filterExpression)
 }
 
+// Backup performs a hot backup of the whole database
+func (db *DB) Backup(targetFile string) error {
+	tx, err := db.Tx(false)
+	if err != nil {
+		return err
+	}
+	defer tx.Close()
+	return tx.Backup(targetFile)
+}
+
+// Buckets returns a list of all buckets and subbuckets
+func (db *DB) Buckets() ([]string, error) {
+	tx, err := db.Tx(false)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+	return tx.Buckets()
+}
+
 func (db *DB) open(filename string) error {
 	dbHandle, err := bolt.Open("my.db", 0600, nil)
 	if err != nil {

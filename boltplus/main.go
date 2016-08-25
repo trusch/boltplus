@@ -25,6 +25,8 @@ var rangeStart = flag.String("rangeStart", "", "rangeStart to search")
 var rangeEnd = flag.String("rangeEnd", "", "rangeEnd to search")
 
 var filter = flag.String("filter", "", "filter returned docs with gojee")
+var backup = flag.String("backup", "", "backup the database to this file")
+var buckets = flag.Bool("buckets", false, "list all buckets")
 
 func init() {
 	flag.Parse()
@@ -35,7 +37,7 @@ func init() {
 			*get = true
 		} else if *bucketPath != "" {
 			*all = true
-		} else {
+		} else if (*backup == "") && !*buckets {
 			log.Fatal("please specify what to do")
 		}
 	}
@@ -162,6 +164,21 @@ func filterCmd(db *boltplus.DB) {
 	}
 }
 
+func backupCmd(db *boltplus.DB) {
+	if err := db.Backup(*backup); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("successfully created backup %v", *backup)
+}
+
+func bucketsCmd(db *boltplus.DB) {
+	if list, err := db.Buckets(); err == nil {
+		log.Print(list)
+	} else {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	flag.Parse()
 	db, err := boltplus.New(*dbPath)
@@ -184,6 +201,10 @@ func main() {
 		getPrefixCmd(db)
 	} else if *rangeStart != "" && *rangeEnd != "" {
 		getRangeCmd(db)
+	} else if *backup != "" {
+		backupCmd(db)
+	} else if *buckets {
+		bucketsCmd(db)
 	} else {
 		log.Fatal("please specify what to do")
 	}

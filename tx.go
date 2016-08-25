@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/boltdb/bolt"
@@ -191,6 +192,43 @@ func (tx *Transaction) FindRange(bucketPath, start, end, filterExpression string
 		return nil, err
 	}
 	return tx.findFromStream(stream, filterExpression)
+}
+
+// Backup performs a hot backup of the whole database
+func (tx *Transaction) Backup(file string) error {
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = tx.tx.WriteTo(f)
+	return err
+}
+
+// Buckets returns a list of all buckets and subbuckets
+func (tx *Transaction) Buckets() ([]string, error) {
+	var res []string
+	err := tx.tx.ForEach(func(k []byte, bucket *bolt.Bucket) error {
+		res = append(res, searchSubbuckets(bucket, "")...)
+		return nil
+	})
+	return res, err
+}
+
+func searchSubbuckets(bucket *bolt.Bucket, prefix string) []string {
+	var res []string
+	bucket.ForEach(func(k, v []byte) error {
+		if v == nil {
+			key := string(k)
+			if prefix != "" {
+				key = prefix + "." + key
+			}
+			res = append(res, key)
+			res = append(res, searchSubbuckets(bucket.Bucket(k), key)...)
+		}
+		return nil
+	})
+	return res
 }
 
 func (tx *Transaction) getBucketOrCreate(bucketPath string) (*bolt.Bucket, error) {

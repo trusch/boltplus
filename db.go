@@ -146,7 +146,7 @@ func (db *DB) Buckets() ([]string, error) {
 }
 
 func (db *DB) open(filename string) error {
-	dbHandle, err := bolt.Open("my.db", 0600, nil)
+	dbHandle, err := bolt.Open(filename, 0600, nil)
 	if err != nil {
 		return err
 	}

@@ -115,6 +115,10 @@ func (tx *Transaction) GetAll(bucketPath string) (chan *Pair, error) {
 func (tx *Transaction) GetPrefix(bucketPath, prefix string) (chan *Pair, error) {
 	returnChannel := make(chan *Pair, 64)
 
+	if prefix == "" {
+		return nil, errors.New("empty prefix")
+	}
+
 	bucket, err := tx.getBucket(bucketPath)
 	if err != nil {
 		return nil, err
@@ -146,6 +150,10 @@ func (tx *Transaction) GetRange(bucketPath, start, end string) (chan *Pair, erro
 	bucket, err := tx.getBucket(bucketPath)
 	if err != nil {
 		return nil, err
+	}
+
+	if start == "" || end == "" {
+		return nil, errors.New("empty start/end")
 	}
 
 	go func() {

@@ -1,4 +1,4 @@
-BoltPlus [![Coverage Status](https://coveralls.io/repos/trusch/boltplus/badge.svg?branch=master)](https://coveralls.io/r/trusch/boltplus?branch=master) [![GoDoc](https://godoc.org/github.com/trusch/boltplus?status.svg)](https://godoc.org/github.com/trusch/boltplus) ![Version](https://img.shields.io/badge/version-0.1.0-green.svg)
+BoltPlus [![GoDoc](https://godoc.org/github.com/trusch/boltplus?status.svg)](https://godoc.org/github.com/trusch/boltplus) ![Version](https://img.shields.io/badge/version-0.1.0-green.svg)
 ========
 
 BoltPlus is a layer on top of boltdb which add some nice features:

@@ -14,13 +14,14 @@ import (
 
 // Transaction represents represents a bold db transaction and exposes the query and update routines
 // usage:
-//
+// ```
 // tx, err := db.NewTransaction()
 // defer tx.Close()
 // tx.Get(...)
 // ...
 // tx.Put(...)
 // tx.Commit()
+// ```
 type Transaction struct {
 	tx         *bolt.Tx
 	isFinished bool

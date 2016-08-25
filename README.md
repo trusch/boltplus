@@ -6,5 +6,6 @@ BoltPlus is a layer on top of boltdb which add some nice features:
 * Snappy Compression
 * Nested Buckets with dot notation
 * Find operations working with gojee queries
-
+* Commandline Client
+* HTTP Server with REST API
 

@@ -81,8 +81,8 @@ func (tx *Transaction) Delete(bucketPath, key string) error {
 	return bucket.Delete([]byte(key))
 }
 
-// GetBucketContent returns all docs in a bucket
-func (tx *Transaction) GetBucketContent(bucketPath string) (chan *Pair, error) {
+// GetAll returns all docs in a bucket
+func (tx *Transaction) GetAll(bucketPath string) (chan *Pair, error) {
 	returnChannel := make(chan *Pair, 64)
 	bucket, err := tx.getBucket(bucketPath)
 	if err != nil {
@@ -168,7 +168,7 @@ func (tx *Transaction) GetRange(bucketPath, start, end string) (chan *Pair, erro
 
 // Find searches a bucket for documents
 func (tx *Transaction) Find(bucketPath, filterExpression string) (chan *Pair, error) {
-	stream, err := tx.GetBucketContent(bucketPath)
+	stream, err := tx.GetAll(bucketPath)
 	if err != nil {
 		return nil, err
 	}

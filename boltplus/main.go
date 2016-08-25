@@ -88,7 +88,7 @@ func getAllCmd(db *boltplus.DB) {
 	if *bucketPath == "" {
 		log.Fatal("specify bucket")
 	}
-	ch, err := db.GetBucketContent(*bucketPath)
+	ch, err := db.GetAll(*bucketPath)
 	if err != nil {
 		log.Fatal(err)
 	}

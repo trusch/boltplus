@@ -71,13 +71,13 @@ func (db *DB) Delete(bucketPath, key string) error {
 	return tx.Commit()
 }
 
-// GetBucketContent returns all docs in a bucket
-func (db *DB) GetBucketContent(bucketPath string) (chan *Pair, error) {
+// GetAll returns all docs in a bucket
+func (db *DB) GetAll(bucketPath string) (chan *Pair, error) {
 	tx, err := db.Tx(false)
 	if err != nil {
 		return nil, err
 	}
-	return tx.GetBucketContent(bucketPath)
+	return tx.GetAll(bucketPath)
 }
 
 // GetPrefix returns all docs in a bucket matching a prefix

@@ -200,7 +200,7 @@ func handleGetAll(event *susigo.Event) {
 	)
 	if payload, ok := event.Payload.(map[string]interface{}); ok {
 		if bucket, ok = payload["bucket"].(string); ok {
-			ch, err := db.GetBucketContent(bucket)
+			ch, err := db.GetAll(bucket)
 			if err != nil {
 				event.AddHeader("Error", err.Error())
 				event.Dismiss()

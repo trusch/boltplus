@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/trusch/boltplus"
 )
 
@@ -22,16 +24,42 @@ var delete = flag.Bool("delete", false, "delete")
 
 var all = flag.Bool("all", false, "query all docs in a bucket")
 var prefix = flag.String("prefix", "", "prefix to search")
-var rangeStart = flag.String("rangeStart", "", "rangeStart to search")
-var rangeEnd = flag.String("rangeEnd", "", "rangeEnd to search")
+var start = flag.String("start", "", "start to search")
+var end = flag.String("end", "", "end to search")
 
 var filter = flag.String("filter", "", "filter returned docs with gojee")
 var backup = flag.String("backup", "", "backup the database to this file")
 var buckets = flag.Bool("buckets", false, "list all buckets")
 
+var outputFormat = flag.String("format", "json", "output format (json,json-pretty,yaml)")
+
+func print(data interface{}) {
+	var bs []byte
+	switch *outputFormat {
+	case "json":
+		{
+			bs, _ = json.Marshal(data)
+		}
+	case "json-pretty":
+		{
+			bs, _ = json.MarshalIndent(data, "", "  ")
+		}
+	case "yaml":
+		{
+			bs, _ = yaml.Marshal(data)
+		}
+	default:
+		{
+			log.Print("wrong output format")
+			return
+		}
+	}
+	fmt.Println(string(bs))
+}
+
 func init() {
 	flag.Parse()
-	if !*all && !*put && !*get && !*delete && *prefix == "" && *rangeStart == "" && *rangeEnd == "" {
+	if !*all && !*put && !*get && !*delete && *prefix == "" && *start == "" && *end == "" {
 		if *bucketPath != "" && *key != "" && *doc != "" {
 			*put = true
 		} else if *bucketPath != "" && *key != "" {
@@ -70,11 +98,7 @@ func getCmd(db *boltplus.DB) {
 		}
 		log.Fatal(err)
 	}
-	data, err := json.Marshal(val)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(data))
+	print(val)
 }
 
 func deleteCmd(db *boltplus.DB) {
@@ -96,11 +120,7 @@ func getAllCmd(db *boltplus.DB) {
 		log.Fatal(err)
 	}
 	for val := range ch {
-		data, err := json.Marshal(val)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(string(data))
+		print(val)
 	}
 }
 
@@ -113,11 +133,7 @@ func getPrefixCmd(db *boltplus.DB) {
 		log.Fatal(err)
 	}
 	for val := range ch {
-		data, err := json.Marshal(val)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(string(data))
+		print(val)
 	}
 }
 
@@ -125,16 +141,12 @@ func getRangeCmd(db *boltplus.DB) {
 	if *bucketPath == "" {
 		log.Fatal("specify bucket")
 	}
-	ch, err := db.GetRange(*bucketPath, *rangeStart, *rangeEnd)
+	ch, err := db.GetRange(*bucketPath, *start, *end)
 	if err != nil {
 		log.Fatal(err)
 	}
 	for val := range ch {
-		data, err := json.Marshal(val)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(string(data))
+		print(val)
 	}
 }
 
@@ -148,8 +160,8 @@ func filterCmd(db *boltplus.DB) {
 		ch, err = db.Find(*bucketPath, *filter)
 	} else if *prefix != "" {
 		ch, err = db.FindPrefix(*bucketPath, *prefix, *filter)
-	} else if *rangeStart != "" && *rangeEnd != "" {
-		ch, err = db.FindRange(*bucketPath, *rangeStart, *rangeEnd, *filter)
+	} else if *start != "" && *end != "" {
+		ch, err = db.FindRange(*bucketPath, *start, *end, *filter)
 	} else {
 		err = errors.New("please specify what to filter")
 	}
@@ -157,11 +169,7 @@ func filterCmd(db *boltplus.DB) {
 		log.Fatal(err)
 	}
 	for val := range ch {
-		data, err := json.Marshal(val)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(string(data))
+		print(val)
 	}
 }
 
@@ -178,7 +186,7 @@ func backupCmd(db *boltplus.DB) {
 
 func bucketsCmd(db *boltplus.DB) {
 	if list, err := db.Buckets(); err == nil {
-		log.Print(list)
+		print(list)
 	} else {
 		log.Fatal(err)
 	}
@@ -204,7 +212,7 @@ func main() {
 		getAllCmd(db)
 	} else if *prefix != "" {
 		getPrefixCmd(db)
-	} else if *rangeStart != "" && *rangeEnd != "" {
+	} else if *start != "" && *end != "" {
 		getRangeCmd(db)
 	} else if *backup != "" {
 		backupCmd(db)

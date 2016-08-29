@@ -11,6 +11,8 @@ type DB struct {
 	db *bolt.DB
 }
 
+type Object map[string]interface{}
+
 // Pair is a key value pair
 type Pair struct {
 	Key   string                 `json:"key"`
@@ -38,7 +40,7 @@ func (db *DB) Close() {
 }
 
 // Put inserts a doc into a bucket
-func (db *DB) Put(bucketPath, key string, val map[string]interface{}) error {
+func (db *DB) Put(bucketPath, key string, val Object) error {
 	tx, err := db.Tx(true)
 	if err != nil {
 		return err
@@ -52,7 +54,7 @@ func (db *DB) Put(bucketPath, key string, val map[string]interface{}) error {
 }
 
 // Get retrieves a doc from a bucket
-func (db *DB) Get(bucketPath, key string) (map[string]interface{}, error) {
+func (db *DB) Get(bucketPath, key string) (Object, error) {
 	tx, err := db.Tx(false)
 	if err != nil {
 		return nil, err

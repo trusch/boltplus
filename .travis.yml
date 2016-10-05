@@ -18,7 +18,7 @@ script:
   - docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
   - docker push trusch/susi-boltplus:${TRAVIS_BRANCH}
   - docker tag trusch/susi-boltplus:${TRAVIS_BRANCH} quay.io/trusch/susi-boltplus:${TRAVIS_BRANCH}
-  - docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}"
+  - docker login -u="${QUAYIO_USERNAME}" -p="${QUAYIO_PASSWORD}" quay.io
   - docker push quay.io/trusch/susi-boltplus:${TRAVIS_BRANCH}
 
 deploy:

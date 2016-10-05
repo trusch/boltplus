@@ -1,6 +1,9 @@
 sudo: required
 language: go
 
+services:
+  - docker
+
 script:
   - GOOS=linux GOARCH=amd64 go build -o boltplus-${TRAVIS_BRANCH}.amd64 boltplus/main.go
   - tar cfvJ boltplus-${TRAVIS_BRANCH}.amd64.tar.xz boltplus-${TRAVIS_BRANCH}.amd64

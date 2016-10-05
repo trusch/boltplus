@@ -139,27 +139,33 @@ func handleGetRange(event *susigo.Event) {
 		if bucket, ok = payload["bucket"].(string); ok {
 			if start, ok = payload["start"].(string); ok {
 				if end, ok = payload["end"].(string); ok {
+					log.Printf("got all args %v %v %v", bucket, start, end)
 					ch, err := db.GetRange(bucket, start, end)
 					if err != nil {
+						log.Printf("got error in db.GetRange: %v", err)
 						event.AddHeader("Error", err.Error())
 						event.Dismiss()
-					} else {
-						arr := make([]*boltplus.Pair, 0, 64)
-						for pair := range ch {
-							arr = append(arr, pair)
-						}
-						payload["docs"] = arr
-						event.Ack()
+						return
 					}
+					arr := make([]*boltplus.Pair, 0, 64)
+					for pair := range ch {
+						arr = append(arr, pair)
+					}
+					payload["docs"] = arr
+					log.Printf("success, got %v docs", len(arr))
+					event.Ack()
+					return
 				}
 			}
 		}
 	}
 	if bucket == "" || start == "" || end == "" {
+		log.Print(wrongPayloadError)
 		event.AddHeader("Error", wrongPayloadError)
 		event.Dismiss()
 		return
 	}
+	log.Print("should not print this")
 }
 
 func handleGetPrefix(event *susigo.Event) {

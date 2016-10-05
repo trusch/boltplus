@@ -1,0 +1,25 @@
+sudo: required
+language: go
+
+script:
+  - GOOS=linux GOARCH=amd64 go build -o boltplus-${TRAVIS_BRANCH}.amd64 boltplus/main.go
+  - tar cfvJ boltplus-${TRAVIS_BRANCH}.amd64.tar.xz boltplus-${TRAVIS_BRANCH}.amd64
+  - GOOS=linux GOARCH=arm go build -o boltplus-${TRAVIS_BRANCH}.armhf boltplus/main.go
+  - tar cfvJ boltplus-${TRAVIS_BRANCH}.armhf.tar.xz boltplus-${TRAVIS_BRANCH}.armhf
+  - GOOS=linux GOARCH=amd64 go build -o susi-boltplus-${TRAVIS_BRANCH}.amd64 susi-boltplus/main.go
+  - tar cfvJ susi-boltplus-${TRAVIS_BRANCH}.amd64.tar.xz susi-boltplus-${TRAVIS_BRANCH}.amd64
+  - GOOS=linux GOARCH=arm go build -o susi-boltplus-${TRAVIS_BRANCH}.armhf susi-boltplus/main.go
+  - tar cfvJ susi-boltplus-${TRAVIS_BRANCH}.armhf.tar.xz susi-boltplus-${TRAVIS_BRANCH}.armhf
+
+deploy:
+  provider: releases
+  api_key:
+    secure: yNwufDQHzBceub8KdAO6sQiNl0lBfLlKz4dVXxTjFdHt8W0z+FN3zzqW3Hd183d2J9/C93iTchioV5fns0DvzjXZKovCRtEc/YxCX1ColYuUY3EgyLu+FJuN+tIprf0xbWItF9/d60MAQeTJW03TCEQ1VZSMr1F/gw5agjqOz22FBmUWKChXZrVGuZDsvzI1aCRar3D8oAb4G2sj2bu1xttB2pW70t+LJZSZ2zwg6G0Goo4YXd58/jJshsap4N5SKTRYZHgmDQYniESVYa16EP0C5JzPd/qtfoFQnzzQbCaE24Oh/ILbPyM2uxnVqqOKfxtDgHVQHWTLzmXJNRHzvQ2mMZigS/1dNPQD+uA8hJ4nxNjNYFM2jTR6yGlC6EXt7esgXZq7zK6dV/EBM0I+/iiSvHkjlFq2UHWvzGQgyU6P6BCFYI5fDOyYtZwxbfx817X8Yc7R+49YTlRzKCLvuIJZfQ21miRDiigZQ1YWkpH9IrmqKc+n3H+MoSc9zEoaDaXXlTZM4bLAcQndI9lbXf4n5HtZ3ENhRdKKx25O4t5EpbTyC5xdG5D1nu0YVeKNUygmuLYxambXOF168PcO+L0F0TPg9WozKbd0JC2uyWxwD8PyZspU9qedBjlo08frjCP5NdGO833rNcFzAZiEdfL0sjfCNTq3UWQrDF28RIo=
+  file:
+    - boltplus-${TRAVIS_BRANCH}.amd64.tar.xz
+    - boltplus-${TRAVIS_BRANCH}.armhf.tar.xz
+    - susi-boltplus-${TRAVIS_BRANCH}.amd64.tar.xz
+    - susi-boltplus-${TRAVIS_BRANCH}.armhf.tar.xz
+  skip_cleanup: true
+  on:
+    tags: true

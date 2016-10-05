@@ -14,7 +14,7 @@ script:
   - GOOS=linux GOARCH=arm go build -o susi-boltplus-${TRAVIS_BRANCH}.armhf susi-boltplus/main.go
   - tar cfvJ susi-boltplus-${TRAVIS_BRANCH}.armhf.tar.xz susi-boltplus-${TRAVIS_BRANCH}.armhf
   - cp susi-boltplus-${TRAVIS_BRANCH}.armhf susi-boltplus/susi-boltplus
-  - cd susi-boltplus && docker build -t trusch/susi-boltplus:${TRAVIS_BRANCH}
+  - cd susi-boltplus && docker build -t trusch/susi-boltplus:${TRAVIS_BRANCH} .
   - docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
   - docker push trusch/susi-boltplus:${TRAVIS_BRANCH}
   - docker tag trusch/susi-boltplus:${TRAVIS_BRANCH} quay.io/trusch/susi-boltplus:${TRAVIS_BRANCH}
